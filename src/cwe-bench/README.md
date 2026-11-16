@@ -16,6 +16,7 @@ This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verif
 - Omits `environment/docker-compose.yaml` only when it defines the single `main` service already specified by the Dockerfile. The adapter checks the Compose and Dockerfile contents before copying.
 - Supports `--limit`, `--task-ids`, and `--overwrite`.
 - Checks required files and task identity before copying.
+- Raises resource or build limits for eight tasks whose source limits caused Daytona oracle failures. These adjustments do not change the verifier's scoring logic.
 
 ## Generated Task Structure
 
@@ -61,6 +62,8 @@ harbor run -p datasets/cwe-bench -a oracle -e daytona --ek auto_snapshot=false
 ## Notes & Caveats
 
 The dataset is gated. Its access terms prohibit republishing solutions. Keep generated tasks local until Collinear AI and the Harbor team agree on a publication route. The adapter copies complete upstream Harbor tasks; the `task-template/` files are unused scaffold files kept for the adapter repository layout. The adapter does not change any task's network settings. The source uses `schema_version = "1.1"`, which the current Harbor task files already use; this adapter preserves it. Daytona cannot change network policy by phase when a task uses Compose mode, which is why the redundant wrapper is omitted.
+
+Daytona oracle checks required a 2,400-second build timeout for `c-cwe326-608cfffc`; 8 GiB of memory and storage for `go-cwe295-558d2730`, `go-cwe613-75fa8fbd`, `javascript-cwe219-bedf9af6-hardened-v3`, `javascript-cwe836-0c737699-hardened-v4`, and `rust-cwe328-bd587348-hardened-v1`; and 8 GiB of memory for `java-cwe522-8914dc0a` and `typescript-cwe306-43fe6624`. The source tasks set lower limits. Each adjusted task passed a targeted Daytona oracle run with these limits.
 
 ## Installation / Prerequisites
 
