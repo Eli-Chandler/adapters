@@ -23,11 +23,10 @@ Each generated directory contains `task.toml`, `instruction.md`, `environment/`,
 
 ## Run Evaluation / Harness
 
-The source repository already has a Harbor registry entry. Its published run command is documented on the [dataset page](https://huggingface.co/datasets/collinear-ai/cwe-bench). For development, run generated tasks with Harbor's oracle agent on Daytona:
+The source repository already has a Harbor registry entry; see the [dataset page](https://huggingface.co/datasets/collinear-ai/cwe-bench) for its run command. The adapted dataset is not registered yet. For development, run generated tasks with Harbor's oracle agent on Daytona:
 
 ```bash
-varlock run -p ~/.config/varlock --filter DAYTONA_API_KEY -- \
-  harbor run -p datasets/cwe-bench -a oracle -e daytona --ek auto_snapshot=false
+harbor run -c src/cwe-bench/run_cwe-bench.yaml --ek auto_snapshot=false
 ```
 
 Run all oracle trials before submitting the adapter for review. Confirm both trial status and reward for every task.
@@ -53,21 +52,19 @@ Reproduce the original side with the pinned source checkout and Harbor, and the 
 
 ```bash
 # Original side
-varlock run -p ~/.config/varlock --filter DAYTONA_API_KEY -- \
-  harbor run -p /path/to/cwe-bench/tasks -a oracle -e daytona --ek auto_snapshot=false
+harbor run -p /path/to/cwe-bench/tasks -a oracle -e daytona --ek auto_snapshot=false
 
 # Adapter side
-varlock run -p ~/.config/varlock --filter DAYTONA_API_KEY -- \
-  harbor run -p datasets/cwe-bench -a oracle -e daytona --ek auto_snapshot=false
+harbor run -p datasets/cwe-bench -a oracle -e daytona --ek auto_snapshot=false
 ```
 
 ## Notes & Caveats
 
-The dataset is gated. Its access terms prohibit republishing solutions. Keep generated tasks local until Collinear AI and the Harbor team agree on a publication route. The adapter does not change any task's network settings. The source uses `schema_version = "1.1"`, which the current Harbor task files already use; this adapter preserves it. Daytona cannot change network policy by phase when a task uses Compose mode, which is why the redundant wrapper is omitted.
+The dataset is gated. Its access terms prohibit republishing solutions. Keep generated tasks local until Collinear AI and the Harbor team agree on a publication route. The adapter copies complete upstream Harbor tasks; the `task-template/` files are unused scaffold files kept for the adapter repository layout. The adapter does not change any task's network settings. The source uses `schema_version = "1.1"`, which the current Harbor task files already use; this adapter preserves it. Daytona cannot change network policy by phase when a task uses Compose mode, which is why the redundant wrapper is omitted.
 
 ## Installation / Prerequisites
 
-Python 3.11 or newer, `uv`, Harbor, and access to the gated CWE-Bench dataset are required. Daytona credentials are required for oracle and parity runs.
+Python 3.11 or newer, `uv`, Harbor, and access to the gated CWE-Bench dataset are required. Set up Daytona credentials for oracle and parity runs.
 
 ## Troubleshooting
 
