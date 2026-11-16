@@ -53,6 +53,31 @@ RUN git init -q && git add -A \\
        commit -qm "clean CWE-Bench baseline" \\
     && git tag cwe-bench-base
 '''
+TASK_CONFIG_OVERRIDES = {
+    "c-cwe326-608cfffc": (("build_timeout_sec = 600.0", "build_timeout_sec = 2400.0"),),
+    "go-cwe295-558d2730": (
+        ("memory_mb = 2048", "memory_mb = 8192"),
+        ("storage_mb = 4096", "storage_mb = 8192"),
+    ),
+    "go-cwe613-75fa8fbd": (
+        ("memory_mb = 2048", "memory_mb = 8192"),
+        ("storage_mb = 4096", "storage_mb = 8192"),
+    ),
+    "java-cwe522-8914dc0a": (("memory_mb = 2048", "memory_mb = 8192"),),
+    "javascript-cwe219-bedf9af6-hardened-v3": (
+        ("memory_mb = 2048", "memory_mb = 8192"),
+        ("storage_mb = 4096", "storage_mb = 8192"),
+    ),
+    "javascript-cwe836-0c737699-hardened-v4": (
+        ("memory_mb = 2048", "memory_mb = 8192"),
+        ("storage_mb = 4096", "storage_mb = 8192"),
+    ),
+    "rust-cwe328-bd587348-hardened-v1": (
+        ("memory_mb = 2048", "memory_mb = 8192"),
+        ("storage_mb = 4096", "storage_mb = 8192"),
+    ),
+    "typescript-cwe306-43fe6624": (("memory_mb = 2048", "memory_mb = 8192"),),
+}
 
 
 class CWEBenchAdapter:
@@ -146,6 +171,10 @@ class CWEBenchAdapter:
                 1,
             )
             task_text = task_text.replace("[agent]\n", PATCH_COLLECTION + "\n[agent]\n", 1)
+            for original, replacement in TASK_CONFIG_OVERRIDES.get(source.name, ()):
+                if task_text.count(original) != 1:
+                    raise ValueError(f"Expected one {original!r} in {task_file}")
+                task_text = task_text.replace(original, replacement, 1)
             task_file.write_text(task_text)
             dockerfile = destination / "environment/Dockerfile"
             dockerfile.write_text(dockerfile.read_text().replace(
