@@ -1,0 +1,13 @@
+datasets:
+  - path: datasets/cwe-bench
+
+agents:
+  - name: oracle
+
+environment:
+  type: daytona
+  delete: true
+
+orchestrator:
+  type: local
+  n_concurrent_trials: 4
