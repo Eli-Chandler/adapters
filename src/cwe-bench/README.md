@@ -12,7 +12,7 @@ This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verif
 
 - Reads the upstream task directories from `--source-dir`.
 - Preserves the source task names and programmatic scoring logic. Adds cited benchmark authors where author credit is missing.
-- Builds a single clean Git baseline after the source's pristine snapshot, then collects an agent patch from `/app`. The separate verifier applies that patch to its clean `/app` copy. An invalid patch scores zero; a missing patch artifact leaves the trial without a grade because transfer may have failed.
+- Builds a single clean Git baseline after the source's pristine snapshot, then collects an agent patch from `/app`. The separate verifier applies that patch to its clean `/app` copy. An empty or invalid patch scores zero; a missing patch artifact leaves the trial without a grade because transfer may have failed.
 - Omits `environment/docker-compose.yaml` only when it defines the single `main` service already specified by the Dockerfile. The adapter checks the Compose and Dockerfile contents before copying.
 - Supports `--limit`, `--task-ids`, and `--overwrite`.
 - Checks required files and task identity before copying.
