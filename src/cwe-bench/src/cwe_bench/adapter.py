@@ -184,4 +184,12 @@ class CWEBenchAdapter:
             test_script.write_text(test_script.read_text().replace(
                 "#!/usr/bin/env bash\n", "#!/usr/bin/env bash\n" + PATCH_APPLICATION, 1
             ))
+            if source.name == "go-cwe273-35cd46d2-hardened-v3":
+                verifier = destination / "tests/verify_programmatic.py"
+                verifier_text = verifier.read_text()
+                original = "DAEMON_IDENTITY = (rng.randrange(64500, 66500), rng.randrange(68000, 69900))"
+                replacement = "DAEMON_IDENTITY = (rng.randrange(62500, 64000), rng.randrange(64000, 65535))"
+                if verifier_text.count(original) != 1:
+                    raise ValueError(f"Expected one identity fixture in {verifier}")
+                verifier.write_text(verifier_text.replace(original, replacement, 1))
         return destinations
