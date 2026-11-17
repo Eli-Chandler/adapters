@@ -29,7 +29,7 @@ PATCH_COLLECTION = (
     ': > /logs/artifacts/model.patch"\n'
 )
 PATCH_APPLICATION = '''# Apply only the submitted /app changes in the clean verifier container.
-score_zero() {
+reject_patch() {
   mkdir -p /logs/verifier
   printf '0\\n' > /logs/verifier/reward.txt
   printf '{"reward":0,"continuous_score":0,"programmatic":0}\\n' > /logs/verifier/reward.json
@@ -40,10 +40,9 @@ if [ ! -f "$patch" ]; then
   echo "[adapter] agent patch artifact was not transferred" >&2
   exit 1
 fi
-if [ ! -s "$patch" ]; then
-  score_zero
+if [ -s "$patch" ]; then
+  git -C /app apply --check "$patch" && git -C /app apply "$patch" || reject_patch
 fi
-git -C /app apply --check "$patch" && git -C /app apply "$patch" || score_zero
 
 '''
 GIT_BASELINE = '''# Record a clean source baseline for patch transfer to the separate verifier.
