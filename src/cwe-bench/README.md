@@ -17,10 +17,11 @@ This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verif
 - Supports `--limit`, `--task-ids`, and `--overwrite`.
 - Checks required files and task identity before copying.
 - Raises resource or build limits for eight tasks whose source limits caused Daytona oracle failures. These adjustments do not change the verifier's scoring logic.
+- Keeps the random child UID/GID in `go-cwe273-35cd46d2-hardened-v3` below 65,536, within Daytona's mapped ID range. The identity check is unchanged.
 
 ## Generated Task Structure
 
-Each generated directory contains `task.toml`, `instruction.md`, `environment/`, `tests/`, and `solution/`. All 100 tasks gain separate verifier configuration, a Git baseline in the Dockerfile, and a patch-application prelude in `tests/test.sh`. Thirty-five task configs gain an `authors` entry, and the redundant Compose file is omitted from all 100 tasks. The original verifier body and its void-on-infrastructure-failure behavior remain intact.
+Each generated directory contains `task.toml`, `instruction.md`, `environment/`, `tests/`, and `solution/`. All 100 tasks gain separate verifier configuration, a Git baseline in the Dockerfile, and a patch-application prelude in `tests/test.sh`. Thirty-five task configs gain an `authors` entry, and the redundant Compose file is omitted from all 100 tasks. The original verifier body and its void-on-infrastructure-failure behavior remain intact, except for the Go identity fixture range noted above.
 
 ## Run Evaluation / Harness
 
