@@ -2,7 +2,7 @@
 
 ## Overview
 
-This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verifier mode. It reads an authorized local checkout. The agent's `/app` changes are collected as a Git patch and applied to a clean verifier container before the original verifier runs. It also adds missing benchmark author credit and omits a redundant, single-service Compose wrapper. The source revision is `d80ebe1014b49a147e77a09d67fd0a4101333ad6`.
+This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verifier mode. It downloads the pinned release or reads a local checkout. The agent's `/app` changes are collected as a Git patch and applied to a clean verifier container before the original verifier runs. The adapter also adds missing benchmark author credit and omits a redundant, single-service Compose wrapper. The default source revision is `d80ebe1014b49a147e77a09d67fd0a4101333ad6`.
 
 ## What is CWE-Bench?
 
@@ -10,7 +10,7 @@ This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verif
 
 ## Adapter Features
 
-- Reads the upstream task directories from `--source-dir`.
+- Downloads the pinned task snapshot from Hugging Face or reads upstream tasks from `--source-dir`.
 - Preserves the source task names and programmatic scoring logic. Adds cited benchmark authors where author credit is missing.
 - Builds a single clean Git baseline after the source's pristine snapshot, then collects an agent patch from `/app`. The separate verifier applies that patch to its clean `/app` copy. An invalid patch scores zero; a missing patch artifact leaves the trial without a grade because transfer may have failed.
 - Omits `environment/docker-compose.yaml` only when it defines the single `main` service already specified by the Dockerfile. The adapter checks the Compose and Dockerfile contents before copying.
@@ -36,7 +36,14 @@ All 100 tasks earned reward 1 with the Harbor oracle on Daytona. The initial run
 
 ## Usage: Create Task Directories
 
-Accept the dataset's Hugging Face access terms, then obtain a local checkout at the pinned revision. Keep this checkout outside the adapters repository.
+Accept the dataset's access terms on Hugging Face and authenticate with `hf auth login`. The adapter downloads and caches the pinned snapshot on first use.
+
+```bash
+cd src/cwe-bench
+uv run cwe-bench --output-dir ../../datasets/cwe-bench
+```
+
+To use an existing local copy or generate tasks offline, pass `--source-dir`. Use the pinned revision for reproducible results.
 
 ```bash
 git clone https://huggingface.co/datasets/collinear-ai/cwe-bench /path/to/cwe-bench
@@ -45,7 +52,7 @@ cd src/cwe-bench
 uv run cwe-bench --source-dir /path/to/cwe-bench --output-dir ../../datasets/cwe-bench
 ```
 
-The Hugging Face checkout needs its large files, including each `environment/repo.tar.gz`. If Git LFS has not fetched them, fetch them before running the adapter.
+If you use a local checkout, fetch its Git LFS files, including each `environment/repo.tar.gz`, before running the adapter.
 
 - `--output-dir DIR` sets the destination. It defaults to `datasets/cwe-bench` relative to the current directory.
 - `--task-ids ID [ID ...]` selects upstream task directory names. Omit it to use all tasks.
