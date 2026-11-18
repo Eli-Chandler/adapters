@@ -1,3 +1,4 @@
+# This scaffold is unused. The adapter copies and updates each upstream task.toml.
 # Refer to https://harborframework.com/docs/task-format for more details.
 
 schema_version = "1.0"

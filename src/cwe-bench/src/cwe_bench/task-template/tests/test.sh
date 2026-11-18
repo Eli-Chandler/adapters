@@ -1,17 +1,7 @@
 #!/bin/bash
 
-# This script should exit with code 0 if tests pass, non-zero otherwise
-
-echo "Running tests..."
-
-# TODO: Add your test commands here
-# Example:
-# python -m pytest tests/ -rA
-# ./run_tests.py
-
-# Generate reward based on previous test command result
-if [ $? -eq 0 ]; then
-  echo 1 > /logs/verifier/reward.txt
-else
-  echo 0 > /logs/verifier/reward.txt
-fi
+# The adapter copies each upstream tests/test.sh and adds a patch-application step.
+# Harbor runs that generated script in the separate verifier environment.
+# The generated verifier reports its reward in /logs/verifier/reward.txt.
+echo "This is a template. Run the generated task to use its upstream tests." >&2
+exit 1
