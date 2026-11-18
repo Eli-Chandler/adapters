@@ -31,7 +31,7 @@ The source repository already has a Harbor registry entry; see the [dataset page
 harbor run -c src/cwe-bench/run_cwe-bench.yaml --ek auto_snapshot=false
 ```
 
-Run all oracle trials before submitting the adapter for review. Confirm both trial status and reward for every task.
+All 100 tasks earned reward 1 with the Harbor oracle on Daytona. The initial run passed 91 tasks. Targeted reruns passed the other nine after the resource, build timeout, and Go test fixture fixes described below.
 
 ## Usage: Create Task Directories
 
@@ -48,9 +48,9 @@ The Hugging Face checkout needs its large files, including each `environment/rep
 
 ## Comparison with Original Benchmark (Parity)
 
-Parity experiments are pending. Separate verifier mode changes task execution and must be measured against the source tasks. The adapter contract requires oracle runs and empirical parity runs on both sides. Record the agreed agent, model, run count, raw scores, and mean ± sample SEM in `parity_experiment.json` after those runs.
+Parity experiments are pending agreement with the Harbor Index team on the agent, model, task set, and number of runs. Start with a matched sanity check on 5–10 tasks, then run one matched full job per side before scaling to three runs per side. Record the raw scores and mean ± sample SEM in `parity_experiment.json` and add the summary table here. The original and adapted run-score ranges must overlap.
 
-Reproduce the original side with the pinned source checkout and Harbor, and the adapter side with the generated `datasets/cwe-bench` directory. Use the same agent, model, settings, and Daytona executor on both sides.
+Use the pinned source checkout for the original side and `datasets/cwe-bench` for the adapter side. Both sides already use Harbor and can run the same agent. These commands use the oracle for reference-solution checks. For parity, use the agreed agent and pin the same version, model, and settings on both sides.
 
 ```bash
 # Original side
