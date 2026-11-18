@@ -1,13 +1,5 @@
 #!/bin/bash
-set -e
 
-# This script demonstrates how to solve the task
-
-echo "Executing solution..."
-
-# TODO: Add your solution commands here
-# Example:
-# git apply solution.patch
-# python solve.py
-
-echo "Solution completed!"
+# This scaffold is unused. The adapter copies each upstream solution/solve.sh as-is.
+echo "This is a template. Run the generated task to use its upstream solution." >&2
+exit 1

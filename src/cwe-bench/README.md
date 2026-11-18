@@ -14,7 +14,6 @@ This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verif
 - Preserves the source task names and programmatic scoring logic. Adds cited benchmark authors where author credit is missing.
 - Builds a single clean Git baseline after the source's pristine snapshot, then collects an agent patch from `/app`. The separate verifier applies that patch to its clean `/app` copy. An invalid patch scores zero; a missing patch artifact leaves the trial without a grade because transfer may have failed.
 - Omits `environment/docker-compose.yaml` only when it defines the single `main` service already specified by the Dockerfile. The adapter checks the Compose and Dockerfile contents before copying.
-- Supports `--limit`, `--task-ids`, and `--overwrite`.
 - Checks required files and task identity before copying.
 - Raises resource or build limits for eight tasks whose source limits caused Daytona oracle failures. These adjustments do not change the verifier's scoring logic.
 - Keeps the random child UID/GID in `go-cwe273-35cd46d2-hardened-v3` below 65,536, within Daytona's mapped ID range. The identity check is unchanged.
@@ -22,6 +21,8 @@ This adapter converts the public CWE-Bench v2.0.1 Harbor tasks to separate verif
 ## Generated Task Structure
 
 Each generated directory contains `task.toml`, `instruction.md`, `environment/`, `tests/`, and `solution/`. All 100 tasks gain separate verifier configuration, a Git baseline in the Dockerfile, and a patch-application prelude in `tests/test.sh`. Thirty-five task configs gain an `authors` entry, and the redundant Compose file is omitted from all 100 tasks. The original verifier body and its void-on-infrastructure-failure behavior remain intact, except for the Go identity fixture range noted above.
+
+The adapter starts from each upstream task directory. It copies the instructions and oracle solution as-is. The files under `task-template/` are scaffolds required by the repository layout.
 
 ## Run Evaluation / Harness
 
@@ -46,6 +47,11 @@ uv run cwe-bench --source-dir /path/to/cwe-bench --output-dir ../../datasets/cwe
 
 The Hugging Face checkout needs its large files, including each `environment/repo.tar.gz`. If Git LFS has not fetched them, fetch them before running the adapter.
 
+- `--output-dir DIR` sets the destination. It defaults to `datasets/cwe-bench` relative to the current directory.
+- `--task-ids ID [ID ...]` selects upstream task directory names. Omit it to use all tasks.
+- `--limit N` caps the number of selected tasks in directory name order.
+- `--overwrite` replaces existing output directories for the selected tasks.
+
 ## Comparison with Original Benchmark (Parity)
 
 Parity experiments are pending agreement with the Harbor Index team on the agent, model, task set, and number of runs. Start with a matched sanity check on 5–10 tasks, then run one matched full job per side before scaling to three runs per side. Record the raw scores and mean ± sample SEM in `parity_experiment.json` and add the summary table here. The original and adapted run-score ranges must overlap.
@@ -62,7 +68,7 @@ harbor run -p datasets/cwe-bench -a oracle -e daytona --ek auto_snapshot=false
 
 ## Notes & Caveats
 
-The dataset is gated. Its access terms prohibit republishing solutions. Keep generated tasks local until Collinear AI and the Harbor team agree on a publication route. The adapter copies complete upstream Harbor tasks; the `task-template/` files are unused scaffold files kept for the adapter repository layout. The adapter does not change any task's network settings. The source uses `schema_version = "1.1"`, which the current Harbor task files already use; this adapter preserves it. Daytona cannot change network policy by phase when a task uses Compose mode, which is why the redundant wrapper is omitted.
+The dataset is gated. Its access terms prohibit republishing solutions. Keep generated tasks local until Collinear AI and the Harbor team agree on a publication route. The adapter preserves the source's `schema_version = "1.1"`. It removes the redundant Compose wrapper because Daytona cannot apply phase-specific network policy in Compose mode.
 
 Daytona oracle checks required a 2,400-second build timeout for `c-cwe326-608cfffc`; 8 GiB of memory and storage for `go-cwe295-558d2730`, `go-cwe613-75fa8fbd`, `javascript-cwe219-bedf9af6-hardened-v3`, `javascript-cwe836-0c737699-hardened-v4`, and `rust-cwe328-bd587348-hardened-v1`; and 8 GiB of memory for `java-cwe522-8914dc0a` and `typescript-cwe306-43fe6624`. The source tasks set lower limits. Each adjusted task passed a targeted Daytona oracle run with these limits.
 

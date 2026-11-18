@@ -7,12 +7,14 @@ from .adapter import CWEBenchAdapter
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--source-dir", type=Path, required=True)
-    parser.add_argument("--output-dir", type=Path, default=Path("datasets/cwe-bench"))
-    parser.add_argument("--limit", type=int)
-    parser.add_argument("--overwrite", action="store_true")
-    parser.add_argument("--task-ids", nargs="+")
+    parser = argparse.ArgumentParser(description="Generate CWE-Bench tasks with separate verifiers.")
+    parser.add_argument("--source-dir", type=Path, required=True, help="Root of the upstream dataset checkout")
+    parser.add_argument(
+        "--output-dir", type=Path, default=Path("datasets/cwe-bench"), help="Output directory (default: %(default)s)"
+    )
+    parser.add_argument("--limit", type=int, help="Maximum number of tasks to generate")
+    parser.add_argument("--overwrite", action="store_true", help="Replace existing generated task directories")
+    parser.add_argument("--task-ids", nargs="+", help="Generate only the specified upstream task directories")
     args = parser.parse_args()
 
     generated = CWEBenchAdapter(
@@ -22,7 +24,7 @@ def main() -> None:
         overwrite=args.overwrite,
         task_ids=args.task_ids,
     ).run()
-    print(f"Copied {len(generated)} CWE-Bench tasks to {args.output_dir}")
+    print(f"Generated {len(generated)} CWE-Bench tasks in {args.output_dir}")
 
 
 if __name__ == "__main__":
